@@ -1,29 +1,44 @@
+import { supabase } from "./supabase";
+
 const API_URL = "http://localhost:8002";
 
+async function getHeaders() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${session?.access_token || ""}`,
+  };
+}
+
 export async function getBalance() {
-  const res = await fetch(`${API_URL}/balance`);
+  const headers = await getHeaders();
+  const res = await fetch(`${API_URL}/balance`, { headers });
   return res.json();
 }
 
 export async function getIngresos() {
-  const res = await fetch(`${API_URL}/ingresos`);
+  const headers = await getHeaders();
+  const res = await fetch(`${API_URL}/ingresos`, { headers });
   return res.json();
 }
 
 export async function getGastos() {
-  const res = await fetch(`${API_URL}/gastos`);
+  const headers = await getHeaders();
+  const res = await fetch(`${API_URL}/gastos`, { headers });
   return res.json();
 }
 
 export async function getInversiones() {
-  const res = await fetch(`${API_URL}/inversiones`);
+  const headers = await getHeaders();
+  const res = await fetch(`${API_URL}/inversiones`, { headers });
   return res.json();
 }
 
 export async function createIngreso(data: any) {
+  const headers = await getHeaders();
   const res = await fetch(`${API_URL}/ingresos`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Error al crear ingreso");
@@ -32,9 +47,10 @@ export async function createIngreso(data: any) {
 }
 
 export async function createGasto(data: any) {
+  const headers = await getHeaders();
   const res = await fetch(`${API_URL}/gastos`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Error al crear gasto");
@@ -43,9 +59,10 @@ export async function createGasto(data: any) {
 }
 
 export async function createInversion(data: any) {
+  const headers = await getHeaders();
   const res = await fetch(`${API_URL}/inversiones`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Error al crear inversión");
@@ -56,8 +73,10 @@ export async function createInversion(data: any) {
 // Funciones de Eliminación
 export async function deleteMovement(id: string, type: "ingreso" | "gasto" | "inversion") {
   const endpoint = type === "ingreso" ? "ingresos" : type === "gasto" ? "gastos" : "inversiones";
+  const headers = await getHeaders();
   const res = await fetch(`${API_URL}/${endpoint}/${id}`, {
     method: "DELETE",
+    headers
   });
   
   if (!res.ok) throw new Error("Error al eliminar el movimiento");
@@ -69,18 +88,18 @@ export async function deleteMovement(id: string, type: "ingreso" | "gasto" | "in
   return res.json();
 }
 
-// Funciones de Actualización (Opcional por ahora, pero implementada la base)
+// Funciones de Actualización
 export async function updateMovement(id: string, type: "ingreso" | "gasto" | "inversion", data: any) {
   const endpoint = type === "ingreso" ? "ingresos" : type === "gasto" ? "gastos" : "inversiones";
+  const headers = await getHeaders();
   const res = await fetch(`${API_URL}/${endpoint}/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
   
   if (!res.ok) throw new Error("Error en la actualización");
   
-  // Si no hay contenido, no intentamos parsear JSON
   if (res.status === 204 || res.headers.get("content-length") === "0") {
     return { success: true };
   }
@@ -90,14 +109,16 @@ export async function updateMovement(id: string, type: "ingreso" | "gasto" | "in
 
 // Gastos Fijos
 export async function getGastosFijos() {
-  const res = await fetch(`${API_URL}/gastos-fijos`);
+  const headers = await getHeaders();
+  const res = await fetch(`${API_URL}/gastos-fijos`, { headers });
   return res.json();
 }
 
 export async function createGastoFijo(data: any) {
+  const headers = await getHeaders();
   const res = await fetch(`${API_URL}/gastos-fijos`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Error al crear gasto fijo");
@@ -106,8 +127,10 @@ export async function createGastoFijo(data: any) {
 }
 
 export async function deleteGastoFijo(id: string) {
+  const headers = await getHeaders();
   const res = await fetch(`${API_URL}/gastos-fijos/${id}`, {
     method: "DELETE",
+    headers
   });
   
   if (!res.ok) throw new Error("Error al eliminar el gasto fijo");
@@ -120,9 +143,10 @@ export async function deleteGastoFijo(id: string) {
 }
 
 export async function updateGastoFijo(id: string, data: any) {
+  const headers = await getHeaders();
   const res = await fetch(`${API_URL}/gastos-fijos/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
   
@@ -137,9 +161,10 @@ export async function updateGastoFijo(id: string, data: any) {
 
 // Mercado Pago
 export async function createPaymentPreference(title: string, amount: number) {
+  const headers = await getHeaders();
   const res = await fetch(`${API_URL}/mercadopago/create-preference`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ title, amount }),
   });
   return res.json();

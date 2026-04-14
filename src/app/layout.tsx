@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   description: "Control de ingresos, gastos e inversiones con estética bancaria.",
 };
 
+import { AuthProvider } from "@/context/AuthContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,7 +23,9 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${roboto.variable} h-full antialiased`}>
       <body className="min-h-full font-sans bg-gray-50">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
