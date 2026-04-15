@@ -169,3 +169,8 @@ export async function createPaymentPreference(title: string, amount: number) {
   });
   return res.json();
 }
+export async function getPaymentHistory() {
+  const headers = await getHeaders();
+  const res = await fetch(`${API_URL}/mercadopago/transactions`, { headers });
+  return res.json();
+}

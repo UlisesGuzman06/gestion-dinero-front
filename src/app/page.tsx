@@ -5,7 +5,7 @@ import SummaryCard from "@/components/SummaryCard";
 import TransactionTable from "@/components/TransactionTable";
 import AddMovementModal from "@/components/AddMovementModal";
 import FixedExpenses from "@/components/FixedExpenses";
-import { getBalance, getIngresos, getGastos } from "@/lib/api";
+import { getBalance, getIngresos, getGastos, getPaymentHistory } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { LogOut, User as UserIcon, Loader2 } from "lucide-react";
 
@@ -23,10 +23,11 @@ export default function Dashboard() {
     if (!user) return;
     setFetching(true);
     try {
-      const [bal, inc, exp] = await Promise.all([
+      const [bal, inc, exp, mp] = await Promise.all([
         getBalance(),
         getIngresos(),
         getGastos(),
+        getPaymentHistory(),
       ]);
       
       setBalance(bal);
@@ -34,6 +35,13 @@ export default function Dashboard() {
       const all = [
         ...(Array.isArray(inc) ? inc.map((i: any) => ({ ...i, tipo: "ingreso" as const })) : []),
         ...(Array.isArray(exp) ? exp.map((e: any) => ({ ...e, tipo: "gasto" as const })) : []),
+        ...(Array.isArray(mp) ? mp.map((m: any) => ({ 
+          ...m, 
+          categoria: "Mercado Pago",
+          // Map 'otros' to 'gasto' for table compatibility if needed, 
+          // but TransactionTable should ideally handle it.
+          tipo: m.tipo === 'ingreso' ? 'ingreso' : 'gasto'
+        })) : []),
       ].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
       
       setTransactions(all);

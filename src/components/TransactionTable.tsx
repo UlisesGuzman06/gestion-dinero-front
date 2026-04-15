@@ -92,20 +92,22 @@ export default function TransactionTable({ transactions, onRefresh, onEdit }: Tr
                       Pagar
                     </button>
                   )}
-                  <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
-                    <button 
-                      onClick={() => onEdit(t)}
-                      className="text-[10px] font-black uppercase text-gray-400 hover:text-bank-primary transition-all tracking-tighter"
-                    >
-                      Editar
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(t.id, t.tipo)}
-                      className="text-[10px] font-black uppercase text-red-400 hover:text-red-600 transition-all tracking-tighter"
-                    >
-                      Borrar
-                    </button>
-                  </div>
+                  {t.categoria !== "Mercado Pago" && (
+                    <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
+                      <button 
+                        onClick={() => onEdit(t)}
+                        className="text-[10px] font-black uppercase text-gray-400 hover:text-bank-primary transition-all tracking-tighter"
+                      >
+                        Editar
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(t.id, t.tipo)}
+                        className="text-[10px] font-black uppercase text-red-400 hover:text-red-600 transition-all tracking-tighter"
+                      >
+                        Borrar
+                      </button>
+                    </div>
+                  )}
                 </div>
               </td>
             </tr>
