@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 
-const API_URL = "https://gestion-dinero-backend.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002";
 
 async function getHeaders() {
   const { data: { session } } = await supabase.auth.getSession();
