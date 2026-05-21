@@ -1,61 +1,88 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9fafb; /* Gris levísimo mate */
-  --foreground: #171717; /* Negro mate */
+  --background: #09090b; /* Zinc 950 */
+  --foreground: #f4f4f5; /* Zinc 100 */
   
-  /* Paleta Corporativa "PLATA" */
-  --bank-primary: #1e3a8a;    /* Azul Marino - Seguridad */
-  --bank-primary-dark: #1e3a8a;
-  --bank-success: #15803d;    /* Verde Bosque - Ingresos */
-  --bank-danger: #b91c1c;     /* Rojo Clásico - Gastos */
-  --bank-investment: #0284c7; /* Azul Cielo - Inversiones */
-  
-  /* Grises Mate */
-  --bank-gray-100: #f3f4f6;
-  --bank-gray-200: #e5e7eb;
-  --bank-gray-300: #d1d5db;
-  --bank-gray-400: #9ca3af;
-  --bank-gray-600: #4b5563;
-  --bank-gray-700: #374151;
+  --bank-primary: #14b8a6;       /* Teal */
+  --bank-success: #10b981;       /* Esmeralda */
+  --bank-danger: #ef4444;        /* Rojo */
+  --bank-investment: #6366f1;    /* Índigo */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-roboto);
+  --font-sans: var(--font-inter);
   
   --color-bank-primary: var(--bank-primary);
   --color-bank-success: var(--bank-success);
   --color-bank-danger: var(--bank-danger);
   --color-bank-investment: var(--bank-investment);
   
-  --color-gray-50: #f9fafb;
-  --color-gray-100: var(--bank-gray-100);
-  --color-gray-200: var(--bank-gray-200);
-  --color-gray-300: var(--bank-gray-300);
-  --color-gray-400: var(--bank-gray-400);
-  --color-gray-600: var(--bank-gray-600);
-  --color-gray-700: var(--bank-gray-700);
+  /* Mapeo de grises neutros/zinc oscuros para coherencia visual instantánea */
+  --color-gray-50: #09090b;   /* Fondo principal */
+  --color-gray-100: #121215;  /* Tarjetas / Paneles */
+  --color-gray-200: #18181b;  /* Hover / Bordes secundarios */
+  --color-gray-300: #27272a;  /* Bordes principales */
+  --color-gray-400: #3f3f46;  /* Bordes destacados */
+  --color-gray-500: #71717a;  /* Texto secundario (Muted) */
+  --color-gray-600: #a1a1aa;  /* Texto de cuerpo */
+  --color-gray-700: #d4d4d8;  /* Texto destacado */
+  --color-gray-850: #202023;  /* Borde intermedio */
+  --color-gray-800: #e4e4e7;  /* Texto brillante */
+  --color-gray-900: #f4f4f5;  /* Texto principal */
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Clases de utilidad corporativas */
+/* Tarjeta sólida, moderna y limpia */
 .card-banking {
-  @apply bg-white border border-[var(--bank-gray-200)] shadow-sm rounded-none;
+  background: #18181b; /* Zinc 900 */
+  border: 1px solid #27272a; /* Zinc 800 */
+  border-radius: 0.5rem; /* rounded-lg (más estructurado) */
+  transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
 }
 
+.card-banking:hover {
+  border-color: #3f3f46; /* Zinc 700 */
+  background: #1c1c20;
+}
+
+/* Botón plano y limpio al estilo SaaS moderno (Stripe/Linear) */
 .btn-banking-primary {
-  @apply bg-bank-primary text-white px-4 py-2 hover:opacity-90 transition-all font-medium;
+  @apply bg-zinc-100 hover:bg-zinc-200 text-zinc-950 px-4 py-2 rounded-lg font-medium text-xs transition-all cursor-pointer shadow-sm;
 }
 
+.btn-banking-secondary {
+  @apply bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-200 px-4 py-2 rounded-lg font-medium text-xs transition-all cursor-pointer;
+}
+
+/* Input elegante y sobrio */
 .input-banking {
-  @apply bg-white border border-gray-300 px-3 py-2 focus:border-bank-primary focus:ring-0 outline-none transition-colors;
+  @apply bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-lg px-3 py-2 focus:border-zinc-500 focus:ring-0 outline-none transition-all placeholder:text-zinc-500 text-xs;
+}
+
+/* Custom Scrollbar for premium feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
 }

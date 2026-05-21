@@ -1,3 +1,5 @@
+import { TrendingUp, TrendingDown, Wallet, Coins } from "lucide-react";
+
 interface SummaryCardProps {
   title: string;
   amount: string;
@@ -6,26 +8,23 @@ interface SummaryCardProps {
 }
 
 export default function SummaryCard({ title, amount, subtitle, color = "neutral" }: SummaryCardProps) {
-  const borderColors = {
-    success: "border-l-bank-success",
-    danger: "border-l-bank-danger",
-    investment: "border-l-bank-investment",
-    neutral: "border-l-transparent",
-  };
-
-  const textColors = {
-    success: "text-bank-success",
-    danger: "text-bank-danger",
-    investment: "text-bank-investment",
-    neutral: "text-gray-900",
+  const amountColorMap = {
+    neutral: "text-zinc-100",
+    success: "text-emerald-400",
+    danger: "text-rose-450",
+    investment: "text-indigo-400",
   };
 
   return (
-    <div className={`card-banking p-5 flex flex-col justify-between min-h-[140px] border-l-4 ${borderColors[color]}`}>
-      <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{title}</span>
-      <div>
-        <span className={`text-3xl font-bold ${textColors[color]}`}>{amount}</span>
-        <div className="text-[10px] text-gray-400 mt-1 uppercase font-medium">{subtitle}</div>
+    <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-lg p-3.5 sm:p-5 flex flex-col justify-between min-h-[95px] sm:min-h-[120px] hover:border-zinc-700/50 hover:bg-zinc-900/60 transition-all duration-150">
+      <div className="space-y-0.5 sm:space-y-1">
+        <span className="text-[10px] sm:text-[11px] font-medium text-zinc-400 block truncate">{title}</span>
+        <span className={`text-base sm:text-2xl font-bold tracking-tight block truncate ${amountColorMap[color]}`}>
+          {amount}
+        </span>
+      </div>
+      <div className="text-[9px] sm:text-[11px] text-zinc-500 font-medium truncate mt-1">
+        {subtitle}
       </div>
     </div>
   );

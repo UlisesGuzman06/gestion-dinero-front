@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createGastoFijo, updateGastoFijo } from "@/lib/api";
+import { X, Loader2 } from "lucide-react";
 
 interface GastoFijo {
   id: string;
@@ -62,65 +63,81 @@ export default function AddFixedExpenseModal({ isOpen, onClose, onSuccess, editi
   };
 
   return (
-    <div className="fixed inset-0 bg-bank-primary/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="bg-bank-primary p-6 text-white">
-          <h2 className="text-xl font-black uppercase tracking-tighter">
-            {editingGasto ? "Editar" : "Nuevo"} Gasto Fijo
-          </h2>
-          <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest mt-1">Configuración de pago mensual</p>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div className="bg-[#18181b] border border-zinc-800 shadow-2xl w-full max-w-md rounded-lg overflow-y-auto max-h-[90vh] animate-in zoom-in-95 duration-150">
+        
+        {/* Header */}
+        <div className="bg-zinc-950/60 px-5 py-4 border-b border-zinc-800 text-zinc-100 flex justify-between items-center">
+          <div>
+            <h2 className="text-sm font-bold tracking-tight text-zinc-100">
+              {editingGasto ? "Editar" : "Nuevo"} Gasto Fijo
+            </h2>
+            <p className="text-[10px] font-medium text-zinc-500 mt-0.5">Configuración de pago mensual</p>
+          </div>
+          <button 
+            onClick={onClose} 
+            className="p-1 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div className="space-y-3">
             <div>
-              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Nombre del Servicio</label>
+              <label className="block text-[10px] font-medium text-zinc-500 mb-1">Nombre del Servicio</label>
               <input
                 required
                 type="text"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="input-banking w-full"
+                className="input-banking w-full text-xs"
+                placeholder="Ej: Internet, Luz, Alquiler..."
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Monto Mensual</label>
+              <label className="block text-[10px] font-medium text-zinc-500 mb-1">Monto Mensual ($)</label>
               <input
                 required
                 type="number"
                 value={monto}
                 onChange={(e) => setMonto(e.target.value)}
-                className="input-banking w-full"
+                className="input-banking w-full text-xs font-mono"
+                placeholder="0"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Link de Pago</label>
+              <label className="block text-[10px] font-medium text-zinc-500 mb-1">Link de Pago (Opcional)</label>
               <input
                 type="text"
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
-                className="input-banking w-full"
+                className="input-banking w-full text-xs"
                 placeholder="https://..."
               />
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-3 border-t border-zinc-850">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400"
+              className="flex-1 btn-banking-secondary flex items-center justify-center h-9"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 btn-banking"
+              className="flex-1 btn-banking-primary flex items-center justify-center h-9 disabled:opacity-50"
             >
-              {loading ? "Guardando..." : "Guardar Cambios"}
+              {loading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                "Guardar"
+              )}
             </button>
           </div>
         </form>
