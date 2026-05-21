@@ -2,6 +2,22 @@ import { supabase } from "./supabase";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002";
 
+const originalFetch = globalThis.fetch;
+const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  const res = await originalFetch(input, init);
+  if (res.status === 401) {
+    console.warn("API 401 Unauthorized: Logging out...");
+    await supabase.auth.signOut();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  }
+  return res;
+};
+
+// Shadow fetch for all functions below in this file
+const fetch = customFetch;
+
 async function getHeaders() {
   const { data: { session } } = await supabase.auth.getSession();
   return {
