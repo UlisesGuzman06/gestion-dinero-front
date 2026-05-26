@@ -197,17 +197,3 @@ export async function getCotizaciones() {
   if (!res.ok) throw new Error("Error al obtener cotizaciones");
   return res.json();
 }
-
-export async function processSmartInput(text: string) {
-  const headers = await getHeaders();
-  const res = await fetch(`${API_URL}/ia/smart-input`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ text }),
-  });
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(errorText || "Error al procesar con IA");
-  }
-  return res.json();
-}

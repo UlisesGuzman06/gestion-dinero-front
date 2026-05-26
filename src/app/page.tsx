@@ -10,7 +10,6 @@ import { getBalance, getIngresos, getGastos, getPaymentHistory, getCotizaciones,
 import { useAuth } from "@/context/AuthContext";
 import { LogOut, User as UserIcon, Loader2, LayoutDashboard, Wallet } from "lucide-react";
 import InversionesManager from "@/components/InversionesManager";
-import SmartInputBar from "@/components/SmartInputBar";
 
 export default function Dashboard() {
   const { user, loading, signOut } = useAuth();
@@ -291,15 +290,6 @@ export default function Dashboard() {
                   color="investment"
                 />
               </div>
-
-              {/* Registro Rápido con IA */}
-              <SmartInputBar 
-                onSuccess={fetchData} 
-                dolarizar={dolarizar} 
-                cotizaciones={cotizaciones} 
-                transactions={transactions}
-                inversiones={inversiones}
-              />
 
               {/* Grid 2-Columnas Principal */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
