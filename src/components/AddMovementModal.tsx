@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createIngreso, createGasto, updateMovement } from "@/lib/api";
+import { createIngreso, createGasto, updateMovement, deleteMovement } from "@/lib/api";
 import { X, Loader2 } from "lucide-react";
 
 interface AddMovementModalProps {
@@ -65,7 +65,16 @@ export default function AddMovementModal({ isOpen, onClose, onSuccess, editingMo
       };
 
       if (editingMovement) {
+        if (type !== editingMovement.tipo) {
+          await deleteMovement(editingMovement.id, editingMovement.tipo);
+          if (type === "ingreso") {
+            await createIngreso(payload);
+          } else {
+            await createGasto(payload);
+          }
+        } else {
           await updateMovement(editingMovement.id, editingMovement.tipo, payload);
+        }
       } else {
         if (type === "ingreso") {
           await createIngreso(payload);
@@ -108,7 +117,6 @@ export default function AddMovementModal({ isOpen, onClose, onSuccess, editingMo
           <div className="grid grid-cols-2 gap-1.5 bg-zinc-950/65 p-1 rounded-lg border border-zinc-900">
             <button
               type="button"
-              disabled={!!editingMovement}
               onClick={() => setType("gasto")}
               className={`py-1.5 px-3 rounded text-[11px] font-semibold transition-all cursor-pointer ${
                 type === "gasto" 
@@ -120,7 +128,6 @@ export default function AddMovementModal({ isOpen, onClose, onSuccess, editingMo
             </button>
             <button
               type="button"
-              disabled={!!editingMovement}
               onClick={() => setType("ingreso")}
               className={`py-1.5 px-3 rounded text-[11px] font-semibold transition-all cursor-pointer ${
                 type === "ingreso" 
@@ -135,18 +142,6 @@ export default function AddMovementModal({ isOpen, onClose, onSuccess, editingMo
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-3">
               <div>
-                <label className="block text-[10px] font-medium text-zinc-500 mb-1">Descripción</label>
-                <input
-                  required
-                  type="text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="input-banking w-full"
-                  placeholder="Ej: Sueldo, Supermercado..."
-                />
-              </div>
-
-              <div>
                 <label className="block text-[10px] font-medium text-zinc-500 mb-1">Monto ($)</label>
                 <input
                   required
@@ -155,6 +150,18 @@ export default function AddMovementModal({ isOpen, onClose, onSuccess, editingMo
                   onChange={(e) => setAmount(e.target.value)}
                   className="input-banking w-full font-mono"
                   placeholder="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-medium text-zinc-500 mb-1">Descripción</label>
+                <input
+                  required
+                  type="text"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="input-banking w-full"
+                  placeholder="Ej: Sueldo, Supermercado..."
                 />
               </div>
             </div>
