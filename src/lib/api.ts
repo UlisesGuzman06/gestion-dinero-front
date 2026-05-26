@@ -26,9 +26,13 @@ async function getHeaders() {
   };
 }
 
-export async function getBalance() {
+export async function getBalance(year?: number, month?: number) {
   const headers = await getHeaders();
-  const res = await fetch(`${API_URL}/balance`, { headers });
+  let url = `${API_URL}/balance`;
+  if (year !== undefined && month !== undefined) {
+    url += `?year=${year}&month=${month + 1}`; // month is 0-indexed in JS, but let's make it 1-indexed in query param
+  }
+  const res = await fetch(url, { headers });
   return res.json();
 }
 

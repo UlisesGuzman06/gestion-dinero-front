@@ -24,13 +24,36 @@ export default function Dashboard() {
   const [cotizaciones, setCotizaciones] = useState<any>(null);
   const [dolarizar, setDolarizar] = useState(false);
   const [activeTab, setActiveTab] = useState<"dashboard" | "inversiones">("dashboard");
+  const [selectedPeriod, setSelectedPeriod] = useState<string>(() => {
+    const now = new Date();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    return `${now.getFullYear()}-${mm}`;
+  });
+  const [availablePeriods, setAvailablePeriods] = useState<string[]>([]);
+
+  const getPeriodLabel = useCallback(() => {
+    if (selectedPeriod === "all") return "Historial";
+    const [y, m] = selectedPeriod.split("-");
+    const dateObj = new Date(parseInt(y, 10), parseInt(m, 10) - 1, 1);
+    const label = dateObj.toLocaleDateString("es-AR", { month: "long" });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }, [selectedPeriod]);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
     setFetching(true);
     try {
+      let targetYear: number | undefined;
+      let targetMonth: number | undefined;
+
+      if (selectedPeriod !== "all") {
+        const [yStr, mStr] = selectedPeriod.split("-");
+        targetYear = parseInt(yStr, 10);
+        targetMonth = parseInt(mStr, 10) - 1;
+      }
+
       const [bal, inc, exp, mp, cotis, invs] = await Promise.all([
-        getBalance(),
+        getBalance(targetYear, targetMonth),
         getIngresos(),
         getGastos(),
         getPaymentHistory(),
@@ -49,10 +72,7 @@ export default function Dashboard() {
       setInversiones(invs);
 
       const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth();
-
-      const all = [
+      const rawAll = [
         ...(Array.isArray(inc) ? inc.map((i: any) => ({ ...i, tipo: "ingreso" as const })) : []),
         ...(Array.isArray(exp) ? exp.map((e: any) => ({ ...e, tipo: "gasto" as const })) : []),
         ...(Array.isArray(mp) ? mp.map((m: any) => ({
@@ -60,19 +80,48 @@ export default function Dashboard() {
           categoria: "Mercado Pago",
           tipo: m.tipo === 'ingreso' ? 'ingreso' : 'gasto'
         })) : []),
-      ].filter(item => {
+      ];
+
+      // Generar lista de períodos disponibles (YYYY-MM) a partir de los datos
+      const periodsSet = new Set<string>();
+      rawAll.forEach(item => {
+        if (item.fecha) {
+          const yyyymm = item.fecha.split('T')[0].substring(0, 7);
+          if (/^\d{4}-\d{2}$/.test(yyyymm)) {
+            periodsSet.add(yyyymm);
+          }
+        }
+      });
+      // Asegurarse de que el mes actual esté en la lista
+      const nowPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      periodsSet.add(nowPeriod);
+
+      const sortedPeriods = Array.from(periodsSet).sort().reverse();
+      setAvailablePeriods(sortedPeriods);
+
+      // Extracción de año/mes timezone-safe basada en cadenas
+      const getYearAndMonth = (dateStr: string) => {
+        const parts = dateStr.split('T')[0].split('-');
+        return {
+          year: parseInt(parts[0], 10),
+          month: parseInt(parts[1], 10) - 1,
+        };
+      };
+
+      const filtered = rawAll.filter(item => {
         if (!item.fecha) return false;
-        const d = new Date(item.fecha);
-        return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+        if (selectedPeriod === "all") return true;
+        const { year, month } = getYearAndMonth(item.fecha);
+        return year === targetYear && month === targetMonth;
       }).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
-      setTransactions(all);
+      setTransactions(filtered);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setFetching(false);
     }
-  }, [user]);
+  }, [user, selectedPeriod]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -238,11 +287,31 @@ export default function Dashboard() {
                     {fetching && <Loader2 className="h-3 w-3 text-zinc-400 animate-spin" />}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  {/* Selector de Período */}
+                  <select
+                    value={selectedPeriod}
+                    onChange={(e) => setSelectedPeriod(e.target.value)}
+                    className="w-full sm:w-auto bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-lg px-2.5 py-1.5 outline-none text-xs cursor-pointer font-medium hover:border-zinc-700 transition-colors"
+                  >
+                    <option value="all">Todos los meses</option>
+                    {availablePeriods.map(p => {
+                      const [y, m] = p.split("-");
+                      const dateObj = new Date(parseInt(y, 10), parseInt(m, 10) - 1, 1);
+                      const label = dateObj.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
+                      const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+                      return (
+                        <option key={p} value={p}>
+                          {capitalizedLabel}
+                        </option>
+                      );
+                    })}
+                  </select>
+
                   {cotizaciones?.dolares?.mep && (
                     <button
                       onClick={() => setDolarizar(!dolarizar)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
+                      className={`w-full sm:w-auto px-3 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
                         dolarizar
                           ? "bg-zinc-900 border-zinc-800 text-zinc-200"
                           : "bg-[#09090b] border-zinc-900 text-zinc-450 hover:text-zinc-200 hover:border-zinc-800"
@@ -280,21 +349,21 @@ export default function Dashboard() {
                   color="investment"
                 />
                 <SummaryCard 
-                  title="Ingresos del Mes" 
+                  title={`Ingresos (${getPeriodLabel()})`} 
                   amount={formatAmount(balance?.totalIngresos || 0, "+")} 
                   subtitle="Total percibido" 
                   color="success"
                 />
                 <SummaryCard 
-                  title="Gastos del Mes" 
+                  title={`Gastos (${getPeriodLabel()})`} 
                   amount={formatAmount(balance?.totalGastos || 0, "-")} 
                   subtitle="Total ejecutado" 
                   color="danger"
                 />
                 <SummaryCard 
-                  title="Cuota Inversión sugerida (15%)" 
+                  title={`Cuota Inversión (${getPeriodLabel()})`} 
                   amount={formatAmount(balance?.totalADestinarInversion || 0)} 
-                  subtitle="Fondo de crecimiento" 
+                  subtitle="Inversión sugerida (15%)" 
                   color="investment"
                 />
               </div>
@@ -350,7 +419,7 @@ export default function Dashboard() {
                         ></div>
                       </div>
                       <p className="text-[11px] text-zinc-500 leading-relaxed">
-                        Has reservado <span className="font-semibold text-zinc-300">{formatAmount(balance?.totalInvertidoReal || 0)}</span> de los <span className="font-semibold text-zinc-300">{formatAmount(balance?.totalADestinarInversion || 0)}</span> sugeridos para este mes.
+                        Has reservado <span className="font-semibold text-zinc-300">{formatAmount(balance?.totalInvertidoReal || 0)}</span> de los <span className="font-semibold text-zinc-300">{formatAmount(balance?.totalADestinarInversion || 0)}</span> sugeridos para {selectedPeriod === "all" ? "este mes" : getPeriodLabel().toLowerCase()}.
                       </p>
                     </div>
                   </div>
