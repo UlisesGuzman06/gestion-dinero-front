@@ -48,6 +48,10 @@ export default function Dashboard() {
       setCotizaciones(cotis);
       setInversiones(invs);
 
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+
       const all = [
         ...(Array.isArray(inc) ? inc.map((i: any) => ({ ...i, tipo: "ingreso" as const })) : []),
         ...(Array.isArray(exp) ? exp.map((e: any) => ({ ...e, tipo: "gasto" as const })) : []),
@@ -56,7 +60,11 @@ export default function Dashboard() {
           categoria: "Mercado Pago",
           tipo: m.tipo === 'ingreso' ? 'ingreso' : 'gasto'
         })) : []),
-      ].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+      ].filter(item => {
+        if (!item.fecha) return false;
+        const d = new Date(item.fecha);
+        return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+      }).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
       setTransactions(all);
     } catch (error) {
